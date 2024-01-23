@@ -61,16 +61,31 @@ class Snake(GameObject):
         self.length = 1
         self.direction = direction
         self.next_direction = None
+        self.last = None
 
     def update_direction(self):
         if self.next_direction:
             self.direction = self.next_direction
             self.next_direction = None
 
+    def get_head_position(self):
+        return (self.positions[0][0], self.positions[0][1])
 
-    def move():
-        pass
-    
+    def move(self):
+        head = self.get_head_position()
+        if head[0] == str(SCREEN_WIDTH) or head[1] == str(SCREEN_HEIGHT):
+            pass
+        else:
+            new_position = (int(self.direction[0]) * GRID_SIZE + int(self.positions[0][0]), int(self.direction[1]) * GRID_SIZE + int(self.positions[0][1]))
+        if new_position in self.positions[1:]:
+            reset(self)
+        else:
+            self.positions.insert(0, new_position)
+            if len(self.position) == self.length:
+                pass
+            else:
+                self.positions.pop()
+
     def draw(self, surface):
         for position in self.positions[:-1]:
             rect = (
@@ -78,12 +93,19 @@ class Snake(GameObject):
             )
             pygame.draw.rect(surface, self.body_color, rect)
             pygame.draw.rect(surface, BORDER_COLOR, rect, 1)
+        head_rect = pygame.Rect(self.positions[0], (GRID_SIZE, GRID_SIZE))
+        pygame.draw.rect(surface, self.body_color, head_rect)
+        pygame.draw.rect(surface, BORDER_COLOR, head_rect, 1)
+        if self.last:
+            last_rect = pygame.Rect(
+                (self.last[0], self.last[1]),
+                (GRID_SIZE, GRID_SIZE)
+            )
+            pygame.draw.rect(surface, BOARD_BACKGROUND_COLOR, last_rect)
 
-    def get_head_position(positions):
-        return positions[0]
 
-    def reset(self, positions):
-        if positions[0] in positions[1:]:
+
+    def reset(self):
             self.length = 1
             self.positions = positions
 
@@ -131,10 +153,11 @@ def main():
     while True:
         screen.fill(BOARD_BACKGROUND_COLOR)
         clock.tick(SPEED)
+        handle_keys(snake)
+        snake.update_direction()
+        snake.move()
         apple.draw(screen)
         snake.draw(screen)
-        handle_keys(snake)
-        update_direction(snake)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
