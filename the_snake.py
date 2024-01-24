@@ -18,7 +18,7 @@ LEFT = (-1, 0)
 RIGHT = (1, 0)
 
 # Цвет фона - черный:
-BOARD_BACKGROUND_COLOR = (255, 255, 255)
+BOARD_BACKGROUND_COLOR = (0, 0, 0)
 
 # Цвет границы ячейки
 BORDER_COLOR = (93, 216, 228)
@@ -30,7 +30,7 @@ APPLE_COLOR = (255, 0, 0)
 SNAKE_COLOR = (0, 255, 0)
 
 # Скорость движения змейки:
-SPEED = 10
+SPEED = 5
 
 # Настройка игрового окна:
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
@@ -54,10 +54,10 @@ class GameObject:
 
 
 class Snake(GameObject):
-    position = [((SCREEN_WIDTH // 2), (SCREEN_HEIGHT // 2))]
+    #position = [((SCREEN_WIDTH // 2), (SCREEN_HEIGHT // 2))]
     def __init__(self, direction=choice([UP, DOWN, LEFT, RIGHT])):
         super().__init__(body_color=SNAKE_COLOR)
-        self.positions = Snake.position
+        self.positions = [((SCREEN_WIDTH // 2), (SCREEN_HEIGHT // 2))]
         self.length = len(self.positions)
         self.direction = direction
         self.next_direction = None
@@ -73,13 +73,13 @@ class Snake(GameObject):
 
     def move(self):
         head = self.get_head_position()
-        if head[0] >= SCREEN_WIDTH:
+        if head[0] > SCREEN_WIDTH:
             head = 0, head[1]
-        elif head[1] >= SCREEN_HEIGHT:
+        elif head[1] > SCREEN_HEIGHT:
             head = head[0], 0
-        elif head[0] <= 0:
+        elif head[0] < 0:
             head = SCREEN_WIDTH, head[1]
-        elif head[1] <= 0:
+        elif head[1] < 0:
             head = head[0], SCREEN_HEIGHT
         
         new_position = (int(self.direction[0]) * GRID_SIZE + int(head[0]), int(self.direction[1]) * GRID_SIZE + int(head[1]))
@@ -108,9 +108,8 @@ class Snake(GameObject):
 
     def reset(self):
         self.length = 1
-        del self.positions[1:]
-        self.positions = self.position
-
+        self.positions = [((SCREEN_WIDTH // 2), (SCREEN_HEIGHT // 2))]
+        
 def handle_keys(game_object):
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -132,6 +131,8 @@ class Apple(GameObject):
         super().__init__()
         self.body_color = APPLE_COLOR
         self.randomize_position()
+        if SCREEN_HEIGHT < self.position[0] < 0 and SCREEN_WIDTH < self.position[1] < 0:
+            self.randomize_position()
 
     def randomize_position(self):
         self.position = (
@@ -153,7 +154,7 @@ def main():
     apple = Apple()
     snake = Snake()
     while True:
-        screen.fill(BOARD_BACKGROUND_COLOR)
+       # screen.fill(BOARD_BACKGROUND_COLOR)
         clock.tick(SPEED)
         # Тут опишите основную логику игры.
         handle_keys(snake)
@@ -161,12 +162,10 @@ def main():
         new_position = snake.move()
         if new_position in snake.positions[2:]:
             snake.reset()
+            
         else:
             if snake.get_head_position() == apple.position:
-                snake.length += 1
                 apple.randomize_position()
-            elif len(snake.positions) == snake.length:
-                pass
             else:
                 snake.last = snake.positions.pop()
 
