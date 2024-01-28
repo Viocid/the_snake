@@ -57,9 +57,11 @@ class GameObject:
 
 class Snake(GameObject):
 
+    position_1=[CENTER]
+
     def __init__(self):
         super().__init__(body_color=SNAKE_COLOR)
-        self.positions = [CENTER]
+        self.positions = self.position_1
         self.length = len(self.positions)
         self.direction = RIGHT
         self.next_direction = handle_keys(self)
@@ -74,26 +76,24 @@ class Snake(GameObject):
         return (self.positions[0][0], self.positions[0][1])
 
     def move(self):
-        head = self.get_head_position()
+        head_1 = self.get_head_position()
         new_position = (
-            int(self.direction[0]) * GRID_SIZE + int(head[0]),
-            int(self.direction[1]) * GRID_SIZE + int(head[1])
+            int(self.direction[0]) * GRID_SIZE + int(head_1[0])
+            if head_1[0] != 0 else 0,
+            int(self.direction[1]) * GRID_SIZE + int(head_1[1])
+            if head_1[0] != 0 else 0
         )
-        if new_position[0] > SCREEN_WIDTH:
-            head = 0, new_position[1]
-        elif new_position[1] > SCREEN_HEIGHT:
-            head = new_position[0], 0
+        head = ()
+        if new_position[0] > int(SCREEN_WIDTH):
+            head = (0, new_position[1])
+        elif new_position[1] > int(SCREEN_HEIGHT):
+            head = (new_position[0], 0)
         elif new_position[0] < 0:
-            head = SCREEN_WIDTH, new_position[1]
+            head = (SCREEN_WIDTH, new_position[1])
         elif new_position[1] < 0:
-            head = new_position[0], SCREEN_HEIGHT
-
-        head = (
-            int(self.direction[0]) * GRID_SIZE + int(head[0])
-            if head[0] != 0 else 0,
-            int(self.direction[1]) * GRID_SIZE + int(head[1])
-            if head[1] != 0 else 0
-        )
+            head = (new_position[0], SCREEN_HEIGHT)
+        else:
+            head = (int(self.direction[0]) * GRID_SIZE + int(head_1[0]),int(self.direction[1]) * GRID_SIZE + int(head_1[1]))
 
         self.positions.insert(0, head)
         return head
