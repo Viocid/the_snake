@@ -50,7 +50,7 @@ class GameObject:
     def __init__(self, body_color=(0, 0, 0)):
         self.position = CENTER
         self.body_color = body_color
-
+''' '''
     def draw(self):
         pass
 
