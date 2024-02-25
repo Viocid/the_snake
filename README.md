@@ -5,7 +5,7 @@
 # №3 Активируйте виртуально окружение командой "source venv/Scripts/activate".
 # №4 Запустите игру командой "python the_snake.py".
 # Если у вас командная строка Linux то комады будут:
-# python3 -m venv venv
-# source venv/bin/activate
-# python3 the_snake.py
+# №1 python3 -m venv venv
+# №3 source venv/bin/activate
+# №4 python3 the_snake.py
 # Для выхода из виртульного окружения пропишите команду "diactivate".
