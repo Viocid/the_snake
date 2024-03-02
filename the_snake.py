@@ -8,14 +8,12 @@ import sys
 pg.init()
 
 # Аннотации типов
-T_COLOR = tuple[int, int, int]
-INT = int
+COLOR = tuple[int, int, int]
 T_INT = tuple[int, int]
-COLOR: T_COLOR = (0, 0, 0)
 
 # Константы для размеров поля и сетки:
-SCREEN_WIDTH: INT = 640
-SCREEN_HEIGHT: INT = 480
+SCREEN_WIDTH: int = 640
+SCREEN_HEIGHT: int = 480
 GRID_SIZE = 20
 GRID_WIDTH = SCREEN_WIDTH // GRID_SIZE
 GRID_HEIGHT = SCREEN_HEIGHT // GRID_SIZE
@@ -27,23 +25,28 @@ LEFT: T_INT = (-1, 0)
 RIGHT: T_INT = (1, 0)
 
 # Цвет фона - черный:
-BOARD_BACKGROUND_COLOR: T_COLOR = (255, 255, 255)
+BOARD_BACKGROUND_COLOR: COLOR = (255, 255, 255)
 
 # Цвет границы ячейки
-BORDER_COLOR: T_COLOR = (93, 216, 228)
+BORDER_COLOR: COLOR = (93, 216, 228)
 
 # Цвет яблока
-APPLE_COLOR: T_COLOR = (255, 0, 0)
+APPLE_COLOR: COLOR = (255, 0, 0)
 
 # Цвет змейки
-SNAKE_COLOR: T_COLOR = (0, 255, 0)
+SNAKE_COLOR: COLOR = (0, 255, 0)
+
+# Цвет по умолчанию
+B_COLOR: COLOR = (0, 0, 0)
 
 # Скорость движения змейки:
-SPEED: INT = 20
+SPEED: int = 20
 
 # Центр экрана
 CENTER = ((SCREEN_WIDTH // 2), (SCREEN_HEIGHT // 2))
 
+# Поправка
+AMENDMENT = 20
 # Настройка игрового окна:
 screen = pg.display.set_mode((
     SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
@@ -55,7 +58,7 @@ clock = pg.time.Clock()
 class GameObject:
     """Основной класс игры."""
 
-    def __init__(self, body_color=COLOR):
+    def __init__(self, body_color=B_COLOR):
         """Базовые атрибуды.
         Определяет центральную точку экрана, цвет объекта.
         """
@@ -72,11 +75,12 @@ class Snake(GameObject):
 
     max_length = 0
 
-    def __init__(self):
+    def __init__(self, body_color=SNAKE_COLOR):
         """Определяет длинну змейки, позицию, напраление движения,
         следующее направление движения, цвет змейки.
         """
-        super().__init__(body_color=SNAKE_COLOR)
+        super().__init__()
+        self.body_color = body_color
         self.positions = [CENTER]
         self.length = len(self.positions)
         self.direction = RIGHT
@@ -104,9 +108,9 @@ class Snake(GameObject):
         elif int(y) >= int(SCREEN_HEIGHT):
             head_1 = x, 0
         elif int(x) < 0:
-            head_1 = (SCREEN_WIDTH - 20), y
+            head_1 = (SCREEN_WIDTH - AMENDMENT), y
         elif int(y) < 0:
-            head_1 = x, (SCREEN_HEIGHT - 20)
+            head_1 = x, (SCREEN_HEIGHT - AMENDMENT)
         else:
             head_1 = x, y
 
@@ -138,8 +142,7 @@ class Snake(GameObject):
             self.max_length = len(self.positions)
         max = self.max_length
         self.length = 1
-        self.positions = [((SCREEN_WIDTH // 2), (SCREEN_HEIGHT // 2))]
-        screen.fill(BOARD_BACKGROUND_COLOR)
+        self.positions = [CENTER]
         pg.display.set_caption(f'Змейка Cкорость змейки {sn_speed} '
                                f'Рекордная длина {max}'
                                )
@@ -152,22 +155,21 @@ class Apple(Snake):
         """Задает цвет яблока,
         вызывает метод устанавливающий начальную позицию яблока.
         """
-        snake = Snake().positions
+        super().__init__()
+        snake = self.positions
         self.body_color = APPLE_COLOR
         self.randomize_position(snake)
 
     def randomize_position(self, snake):
         """Устанавливает случайное положение яблока на игровом поле."""
-        snake = snake
-        Flag = True
-        while Flag:
+        while True:
             new_position = (
                 randint(0, GRID_WIDTH) * GRID_SIZE,
                 randint(0, GRID_HEIGHT) * GRID_SIZE
             )
-            if ((SCREEN_WIDTH - 20) < new_position[0]
+            if ((SCREEN_WIDTH - AMENDMENT) < new_position[0]
                 or new_position[0] < 0
-                or (SCREEN_HEIGHT - 20) < new_position[1]
+                or (SCREEN_HEIGHT - AMENDMENT) < new_position[1]
                 or new_position[1] < 0
                     or new_position in snake):
 
@@ -177,7 +179,7 @@ class Apple(Snake):
                 )
             else:
                 self.position = new_position
-                Flag = False
+                break
 
     def draw(self, surface):
         """Отрисовывает яблоко."""
@@ -232,6 +234,7 @@ def main():
         snake_1 = snake.positions
         if head in snake.positions[2:]:
             snake.reset()
+            screen.fill(BOARD_BACKGROUND_COLOR)
         else:
             if snake.get_head_position() == apple.position:
                 apple.randomize_position(snake_1)
